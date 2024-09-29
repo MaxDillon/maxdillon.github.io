@@ -1,4 +1,4 @@
-name: Deno Build
+name: Build Astro Project with Bun
 
 on:
   push:
@@ -8,27 +8,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v1
 
-      # Cache npm dependencies (optional but recommended)
-      - name: Cache NPM modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/deno/npm
-          key: ${{ runner.os }}-deno-npm-${{ hashFiles('deno.json') }}
-          restore-keys: |
-            ${{ runner.os }}-deno-npm-
+    - name: Install dependencies
+      run: bun install
 
-      # Install dependencies
-      - name: Cache Deno modules
-        run: deno cache --reload deno.json
-
-      - name: Build with Astro
-        run: deno task build
+    - name: Build Astro project
+      run: bun run build
