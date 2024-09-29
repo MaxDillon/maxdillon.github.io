@@ -1,0 +1,42 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js (or your environment)
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.46.3"
+
+      - name: Install dependencies
+        run: deno install --reload . # Change this to your specific package manager/command
+
+      - name: Build project
+        run: deno task build # Change this to your build command
+
+      - name: Checkout http branch
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git checkout -B http
+
+      - name: Copy files to http branch
+        run: |
+          rm -rf * # Clear the existing files in the http branch
+          cp -R dist/* . # Copy files from the dist folder to the root
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Deploy updated files from dist"
+          git push origin http --force
