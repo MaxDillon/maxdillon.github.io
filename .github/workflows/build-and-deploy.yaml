@@ -18,6 +18,9 @@ jobs:
         with:
           deno-version: "1.46.3"
 
+      - name: Install dependencies
+        run: deno install --reload . # Change this to your specific package manager/command
+
       - name: Build project
         run: deno task build # Change this to your build command
 
