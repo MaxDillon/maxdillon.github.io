@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Deno Build
 
 on:
   push:
@@ -8,41 +8,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Deno
+      - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: "1.46.3"
+          deno-version: v1.x
 
-      - name: Cache Deno dependencies
+      # Cache npm dependencies (optional but recommended)
+      - name: Cache NPM modules
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cache/deno
-          key: ${{ runner.os }}-deno-cache-${{ hashFiles('deno.lock') }}
+          path: ~/.cache/deno/npm
+          key: ${{ runner.os }}-deno-npm-${{ hashFiles('deno.json') }}
           restore-keys: |
-            ${{ runner.os }}-deno-cache-
+            ${{ runner.os }}-deno-npm-
 
-      - name: Build project
-        run: deno task build # Runs the build task from deno.json
+      # Install dependencies
+      - name: Cache Deno modules
+        run: deno cache --reload deno.json
 
-      - name: Checkout http branch
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git checkout -B http
-
-      - name: Copy files to http branch
-        run: |
-          rm -rf * # Clear the existing files in the http branch
-          cp -R dist/* . # Copy files from the dist folder to the root
-
-      - name: Commit and push changes
-        run: |
-          git add .
-          git commit -m "Deploy updated files from dist"
-          git push origin http --force
+      - name: Build with Astro
+        run: deno task build
