@@ -19,24 +19,33 @@ jobs:
     - name: Install dependencies
       run: bun install
 
-    - name: Build Astro project
-      run: bun run build
-
-    - name: Deploy to `http` branch
+    - name : Configure User
       run: |
         # Configure Git user
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
-        
+
+    - name: Build Astro project
+      run: bun run build
+
+
+    - name: Deploy to `http` branch
+      run: |
+        # Add dist to temporary version control 
+        git add -f dist
+        git commit -m "Added dist"
+
         # Clone the `http` branch or create an empty orphan branch if it doesn't exist
-        git fetch origin http || git checkout --orphan http
+        git checkout --orphan http
+        git clean -fd
 
         # Clean the branch and copy the dist folder contents
-        git reset --hard
-        git clean -fd
-        cp -r dist/* .
+        git rm -rf .
+        git checkout main -- dist
+        git mv dist/* .
 
         # Commit the changes and push to the `http` branch
-        git add .
+        git status
+        ls -la
         git commit -m "Deploy to GitHub Pages"
         git push origin http --force
