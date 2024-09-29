@@ -13,16 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js (or your environment)
+      - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: "2"
+          deno-version: "1.46.3"
 
-      - name: Install dependencies
-        run: deno install --reload . # Change this to your specific package manager/command
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/deno
+          key: ${{ runner.os }}-deno-cache-${{ hashFiles('deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-cache-
 
       - name: Build project
-        run: deno task build # Change this to your build command
+        run: deno task build # Runs the build task from deno.json
 
       - name: Checkout http branch
         run: |
