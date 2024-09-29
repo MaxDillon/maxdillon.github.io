@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js (or your environment)
         uses: denoland/setup-deno@v1
         with:
-          deno-version: "1.46.3"
+          deno-version: "2"
 
       - name: Install dependencies
         run: deno install --reload . # Change this to your specific package manager/command
